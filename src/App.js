@@ -1,25 +1,80 @@
-import logo from './logo.svg';
+
 import './App.css';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
+import About from './components/About';
+import Services from './components/Services';
+import Contact from './components/Contact';
+import Footer from './components/Footer';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
+import Logout from './components/Logout';
+import Protectedroute from './ProtectedRoute';
+import { useEffect, useState } from 'react';
+import { Route, Switch } from 'react-router-dom';
+
 
 function App() {
+
+  // check If user is Logged in
+  const [auth, setauth] = useState(false);
+  const [auth1, setauth1] = useState(true);
+
+  const isLoggedIn = async () => {
+    try {
+      const res = await fetch(' /auth', {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        credentials: "include"
+      });
+      if(res.status === 200){
+        setauth(true)
+        setauth1(false)
+      }
+      if(res.status === 401){
+        setauth(false)
+        setauth1(true)
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    isLoggedIn();
+  }, [])
+  
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Navbar auth={auth1}/>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/about" component={About} />
+        <Route exact path="/service" component={Services} />
+        <Route exact path="/contact" component={Contact} />
+        <Protectedroute exact path="/login" component={Login} auth={auth1} />
+        <Protectedroute path="/register" component={Register} auth={auth1} />
+        <Protectedroute exact path="/dashboard" component={Dashboard} auth={auth} />
+        <Protectedroute exact path="/logout" component={Logout} auth={auth} />
+      </Switch>
+      <Footer />
+    </>
   );
 }
 
 export default App;
+
+// now we have to Procted Out Route like with out Login
+// You can not go to Dashboard
+// And after login you can not login again
+// we need protected Routes
+
+// we cant acces Them if Auth is false
+
+//Now we need to change Navbar Dynamically
